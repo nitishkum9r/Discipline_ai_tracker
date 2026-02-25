@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nitish 2026 Discipline Tracker</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<!-- Google Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Caveat:wght@400..700&display=swap');
+</style>
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+:root {
+    /* Light Mode Colors */
+    --bg-primary: #F5F5DC;
+    --bg-secondary: rgba(255, 255, 255, 0.15);
+    --text-primary: #1a1a1a;
+    --text-secondary: #10B981;
+    --glass-border: rgba(255, 255, 255, 0.3);
+    --glass-shadow: rgba(0, 0, 0, 0.1);
+    --checkbox-bg: #000000;
+    --checkbox-border: #000000;
+    --progress-bg: rgba(0, 0, 0, 0.1);
+    --overlay: rgba(245, 245, 220, 0.3);
+    --toggle-bg: rgba(0, 0, 0, 0.1);
+    --toggle-slider: #333;
+}
+
+[data-theme="dark"] {
+    /* Dark Mode Colors */
+    --bg-primary: #0A0A0A;
+    --bg-secondary: rgba(20, 20, 20, 0.25);
+    --text-primary: #ffffff;
+    --text-secondary: #10B981;
+    --glass-border: rgba(255, 255, 255, 0.08);
+    --glass-shadow: rgba(0, 0, 0, 0.5);
+    --checkbox-bg: #000000;
+    --checkbox-border: #333;
+    --progress-bg: rgba(255, 255, 255, 0.1);
+    --overlay: rgba(10, 10, 10, 0.4);
+    --toggle-bg: rgba(255, 255, 255, 0.1);
+    --toggle-slider: #fff;
+}
+
+body {
+    font-family: 'Caveat', cursive;
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    min-height: 100vh;
+    position: relative;
+    overflow-x: hidden;
+}
+
+/* Background Video */
+.bg-video {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: -2;
+}
+
+.bg-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--overlay);
+    z-index: -1;
+}
+
+/* Container */
+.container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 20px;
+    position: relative;
+    z-index: 1;
+}
+
+/* Header */
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 30px 20px;
+    margin-bottom: 30px;
+}
+
+.title {
+    font-family: 'Inter', sans-serif;
+    font-size: 56px;
+    font-weight: 900;
+    background: linear-gradient(135deg, #EC4899 0%, #F472B6 50%, #FBCFE8 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-shadow: 0 0 30px rgba(236, 72, 153, 0.3);
+    letter-spacing: -1px;
+}
+
+/* Theme Toggle */
+.theme-toggle {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 16px;
+    background: var(--bg-secondary);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid var(--glass-border);
+    border-radius: 50px;
+    cursor: pointer;
+    box-shadow: 0 8px 32px var(--glass-shadow);
+}
+
+.theme-toggle span {
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.toggle-icon {
+    width: 40px;
+    height: 20px;
+    background: var(--toggle-bg);
+    border-radius: 20px;
+    position: relative;
+    transition: background 0.3s ease;
+}
+
+.toggle-icon::after {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 16px;
+    height: 16px;
+    background: var(--toggle-slider);
+    border-radius: 50%;
+    transition: transform 0.3s ease;
+}
+
+[data-theme="dark"] .toggle-icon::after {
+    transform: translateX(20px);
+}
+
+/* Slogan Box */
+.slogan-box {
+    padding: 20px 30px;
+    margin-bottom: 30px;
+    border-radius: 20px;
+    background: var(--bg-secondary);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid var(--glass-border);
+    box-shadow: 0 8px 32px var(--glass-shadow);
+    text-align: center;
+}
+
+.slogan-box h2 {
+    font-family: 'Inter', sans-serif;
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--text-secondary);
+    margin-bottom: 10px;
+}
+
+.slogan-input {
+    width: 100%;
+    max-width: 600px;
+    padding: 12px 20px;
+    border-radius: 12px;
+    border: 2px solid var(--glass-border);
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(5px);
+    font-family: 'Caveat', cursive;
+    font-size: 24px;
+    color: var(--text-primary);
+    outline: none;
+    text-align: center;
+}
+
+.slogan-input::placeholder {
+    color: var(--text-primary);
+    opacity: 0.5;
+}
+
+.slogan-input:focus {
+    border-color: var(--text-secondary);
+    box-shadow: 0 0 20px rgba(16, 185, 129, 0.2);
+}
+
+.slogan-display {
+    font-size: 26px;
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+/* Glass Card */
+.card {
+    margin: 20px 0;
+    padding: 30px;
+    border-radius: 24px;
+    background: var(--bg-secondary);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid var(--glass-border);
+    box-shadow: 0 8px 32px var(--glass-shadow), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.card h3 {
+    font-family: 'Inter', sans-serif;
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--text-secondary);
+    margin-bottom: 20px;
+}
+
+.card p {
+    font-size: 20px;
+    color: var(--text-secondary);
+    margin-bottom: 15px;
+}
+
+/* Input & Buttons */
+input[type="text"] {
+    padding: 12px 20px;
+    border-radius: 12px;
+    border: 2px solid var(--glass-border);
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(5px);
+    font-family: 'Caveat', cursive;
+    font-size: 22px;
+    color: var(--text-primary);
+    outline: none;
+    margin-right: 10px;
+}
+
+input[type="text"]::placeholder {
+    color: var(--text-primary);
+    opacity: 0.5;
+}
+
+input[type="text"]:focus {
+    border-color: var(--text-secondary);
+    box-shadow: 0 0 20px rgba(16, 185, 129, 0.2);
+}
+
+button {
+    background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+    border: none;
+    color: white;
+    padding: 12px 24px;
+    cursor: pointer;
+    border-radius: 12px;
+    font-family: 'Inter', sans-serif;
+    font-size: 16px;
+    font-weight: 600;
+    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+    transition: all 0.3s ease;
+}
+
+button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+}
+
+button:active {
+    transform: translateY(0);
+}
+
+/* Task List */
+#taskList {
+    list-style: none;
+    margin-top: 15px;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+}
+
+#taskList.expanded {
+    max-height: 500px;
+    overflow-y: auto;
+}
+
+#taskList li {
+    padding: 12px 16px;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(5px);
+    border-radius: 10px;
+    margin-bottom: 8px;
+    font-size: 20px;
+    border: 1px solid var(--glass-border);
+}
+
+/* Toggle Tasks Button */
+.toggle-tasks-btn {
+    background: linear-gradient(135deg, #EC4899 0%, #F472B6 100%);
+    margin-top: 10px;
+    font-size: 14px;
+    padding: 8px 16px;
+}
+
+.toggle-tasks-btn:hover {
+    box-shadow: 0 6px 20px rgba(236, 72, 153, 0.4);
+}
+
+/* Task Grid */
+#grid {
+    overflow-x: auto;
+    padding: 10px 0;
+}
+
+/* Date Headers */
+.date-headers {
+    display: flex;
+    padding: 10px 0;
+    border-bottom: 2px solid var(--glass-border);
+    margin-bottom: 10px;
+}
+
+.date-header-cell {
+    min-width: 28px;
+    text-align: center;
+    font-family: 'Inter', sans-serif;
+    font-size: 9px;
+    color: var(--text-secondary);
+    padding: 5px 2px;
+    font-weight: 600;
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    max-height: 60px;
+}
+
+.date-header-cell.week-start {
+    background: var(--text-secondary);
+    color: white;
+    border-radius: 4px;
+    writing-mode: horizontal-tb;
+}
+
+.task-row {
+    display: flex;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--glass-border);
+}
+
+.task-row:last-child {
+    border-bottom: none;
+}
+
+.task-title {
+    min-width: 200px;
+    padding-right: 20px;
+    font-size: 20px;
+    color: var(--text-secondary);
+}
+
+/* Custom Checkbox */
+.day-cell {
+    width: 24px;
+    height: 24px;
+    margin: 2px;
+    appearance: none;
+    -webkit-appearance: none;
+    background: var(--checkbox-bg);
+    border: 2px solid var(--checkbox-border);
+    border-radius: 6px;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+}
+
+.day-cell:hover {
+    transform: scale(1.1);
+    box-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
+}
+
+.day-cell:checked {
+    background: var(--text-secondary);
+    border-color: var(--text-secondary);
+}
+
+.day-cell:checked::after {
+    content: '✓';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+/* Heatmap */
+.heatmap {
+    display: grid;
+    grid-template-columns: repeat(53, 15px);
+    gap: 4px;
+    padding: 10px 0;
+}
+
+.heat-cell {
+    width: 15px;
+    height: 15px;
+    background: var(--progress-bg);
+    border-radius: 4px;
+    transition: all 0.2s ease;
+}
+
+.heat-cell:hover {
+    transform: scale(1.2);
+}
+
+.level-1 { background: rgba(16, 185, 129, 0.3); }
+.level-2 { background: rgba(16, 185, 129, 0.5); }
+.level-3 { background: rgba(16, 185, 129, 0.75); }
+.level-4 { background: var(--text-secondary); }
+
+/* Progress Bar */
+.progress-bar-container {
+    width: 100%;
+    background: var(--progress-bg);
+    height: 30px;
+    border-radius: 15px;
+    overflow: hidden;
+    backdrop-filter: blur(5px);
+    border: 1px solid var(--glass-border);
+}
+
+.progress-bar {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, #10B981 0%, #059669 100%);
+    transition: width 1s ease;
+    border-radius: 15px;
+    position: relative;
+    overflow: hidden;
+}
+
+.progress-bar::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .title {
+        font-size: 36px;
+    }
+
+    header {
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .card {
+        padding: 20px;
+    }
+
+    .heatmap {
+        grid-template-columns: repeat(auto-fit, 15px);
+    }
+}
+</style>
+</head>
+
+<body>
+
+<!-- Background Video -->
+<video class="bg-video" autoplay muted loop playsinline>
+    <source src="lifestyle.mp4" type="video/mp4">
+</video>
+<div class="bg-overlay"></div>
+
+<div class="container">
+    <header>
+        <h1 class="title">✨ Nitish 2026 Discipline Tracker</h1>
+        <div class="theme-toggle" onclick="toggleTheme()">
+            <span>🌞</span>
+            <div class="toggle-icon"></div>
+            <span>🌙</span>
+        </div>
+    </header>
+
+    <!-- Slogan Box -->
+    <div class="slogan-box">
+        <h2>💫 Today's Motivation</h2>
+        <input type="text" id="sloganInput" class="slogan-input" placeholder="Enter your slogan for today..." onchange="saveSlogan()">
+    </div>
+
+<div class="card">
+    <h3>Add New Task</h3>
+    <p>What habit do you want to track?</p>
+    <input type="text" id="taskInput" placeholder="Enter your new habit...">
+    <button onclick="addTask()">➕ Add Task</button>
+    <button class="toggle-tasks-btn" onclick="toggleTasksList()">📋 See All Tasks</button>
+    <ul id="taskList"></ul>
+</div>
+
+<div class="card">
+    <h3>365 Day Journey</h3>
+    <p>Starting February 25, 2026 - Track your daily consistency!</p>
+    <div id="grid"></div>
+</div>
+
+<div class="card">
+    <h3>Today's Progress</h3>
+    <p>Keep pushing! You're doing great! 💪</p>
+    <div class="progress-bar-container">
+        <div class="progress-bar" id="dailyProgress"></div>
+    </div>
+</div>
+
+<div class="card">
+    <h3>Activity Heatmap</h3>
+    <p>Your consistency visualized over the year</p>
+    <div class="heatmap" id="heatmap"></div>
+</div>
+
+</div> <!-- End container -->
+
+<script>
+const API_BASE = "http://127.0.0.1:8000";
+
+/* ------------------ THEME TOGGLE ------------------ */
+
+function toggleTheme() {
+    const html = document.documentElement;
+    const currentTheme = html.getAttribute('data-theme');
+    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+
+    html.setAttribute('data-theme', newTheme);
+    localStorage.setItem('theme', newTheme);
+}
+
+// Load saved theme on page load
+document.addEventListener('DOMContentLoaded', () => {
+    const savedTheme = localStorage.getItem('theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+
+    // Load saved slogan
+    const savedSlogan = localStorage.getItem('dailySlogan');
+    if (savedSlogan) {
+        document.getElementById('sloganInput').value = savedSlogan;
+    }
+});
+
+/* ------------------ SLOGAN ------------------ */
+
+function saveSlogan() {
+    const slogan = document.getElementById('sloganInput').value;
+    localStorage.setItem('dailySlogan', slogan);
+}
+
+/* ------------------ TASK API ------------------ */
+let tasks = [];
+let startDate = new Date("2026-02-25");
+let days = 365;
+
+/* ------------------ TASK API ------------------ */
+
+async function loadTasks() {
+    const res = await fetch(`${API_BASE}/tasks`);
+    tasks = await res.json();
+    renderTasks();
+    buildGrid();
+}
+
+async function addTask() {
+    const input = document.getElementById("taskInput");
+    const title = input.value.trim();
+    if (!title) return;
+
+    await fetch(`${API_BASE}/tasks`, {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({title})
+    });
+
+    input.value = "";
+    loadTasks();
+}
+
+function renderTasks() {
+    const list = document.getElementById("taskList");
+    list.innerHTML = "";
+    tasks.forEach(t => {
+        const li = document.createElement("li");
+        li.textContent = t.title;
+        list.appendChild(li);
+    });
+}
+
+function toggleTasksList() {
+    const list = document.getElementById("taskList");
+    const btn = document.querySelector(".toggle-tasks-btn");
+    list.classList.toggle("expanded");
+
+    if (list.classList.contains("expanded")) {
+        btn.textContent = "🔽 Hide Tasks";
+    } else {
+        btn.textContent = "📋 See All Tasks";
+    }
+}
+
+/* ------------------ GRID ------------------ */
+
+async function buildGrid() {
+    const grid = document.getElementById("grid");
+    grid.innerHTML = "";
+
+    // Create date headers row
+    const dateHeadersRow = document.createElement("div");
+    dateHeadersRow.className = "date-headers";
+
+    // Empty cell for task title column
+    const emptyCell = document.createElement("div");
+    emptyCell.className = "task-title";
+    emptyCell.textContent = "Task / Date";
+    dateHeadersRow.appendChild(emptyCell);
+
+    // Add date headers
+    for (let i = 0; i < days; i++) {
+        const date = new Date(startDate);
+        date.setDate(startDate.getDate() + i);
+
+        const dateCell = document.createElement("div");
+        dateCell.className = "date-header-cell";
+
+        const dayOfWeek = date.getDay(); // 0 = Sunday, 1 = Monday, etc.
+
+        // Show date only on Sundays (week start) and 1st of each month
+        if (dayOfWeek === 0 || date.getDate() === 1) {
+            dateCell.classList.add("week-start");
+            // Format: Show day and month (e.g., "25 Feb")
+            const day = date.getDate();
+            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            const month = months[date.getMonth()];
+
+            dateCell.textContent = `${day} ${month}`;
+        } else {
+            // Show just the day number vertically for other days
+            dateCell.textContent = date.getDate();
+        }
+
+        dateHeadersRow.appendChild(dateCell);
+    }
+
+    grid.appendChild(dateHeadersRow);
+
+    // Fetch all task logs first
+    const taskLogsMap = {};
+    for (const task of tasks) {
+        const res = await fetch(`${API_BASE}/logs/task/${task.id}`);
+        const logs = await res.json();
+        taskLogsMap[task.id] = logs;
+    }
+
+    tasks.forEach(task => {
+        const row = document.createElement("div");
+        row.className = "task-row";
+
+        const title = document.createElement("div");
+        title.className = "task-title";
+        title.textContent = task.title;
+        row.appendChild(title);
+
+        const logs = taskLogsMap[task.id] || [];
+
+        for (let i=0; i<days; i++) {
+            const date = new Date(startDate);
+            date.setDate(startDate.getDate() + i);
+            const dateStr = date.toISOString().split("T")[0];
+
+            const cell = document.createElement("input");
+            cell.type = "checkbox";
+            cell.className = "day-cell";
+
+            // Check if this date has a completed log
+            const log = logs.find(l => l.date === dateStr);
+            if (log && log.completed) {
+                cell.checked = true;
+            }
+
+            cell.addEventListener("change", () => {
+                logTask(task.id, dateStr, cell.checked);
+            });
+
+            row.appendChild(cell);
+        }
+
+        grid.appendChild(row);
+    });
+}
+
+/* ------------------ LOG TASK ------------------ */
+
+async function logTask(task_id, date, completed) {
+    await fetch(`${API_BASE}/log`, {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({task_id, date, completed})
+    });
+
+    updateDailyStats();
+    updateHeatmap();
+}
+
+/* ------------------ DAILY STATS ------------------ */
+
+async function updateDailyStats() {
+    const today = new Date().toISOString().split("T")[0];
+    const res = await fetch(`${API_BASE}/stats/daily?log_date=${today}`);
+    const data = await res.json();
+
+    document.getElementById("dailyProgress").style.width =
+        data.daily_completion + "%";
+}
+
+/* ------------------ HEATMAP ------------------ */
+
+async function updateHeatmap() {
+    const heatmap = document.getElementById("heatmap");
+    heatmap.innerHTML = "";
+
+    for (let i=0; i<365; i++) {
+        const date = new Date(startDate);
+        date.setDate(startDate.getDate() + i);
+        const dateStr = date.toISOString().split("T")[0];
+
+        const res = await fetch(`${API_BASE}/stats/daily?log_date=${dateStr}`);
+        const data = await res.json();
+
+        const cell = document.createElement("div");
+        cell.className = "heat-cell";
+
+        if (data.daily_completion > 0) cell.classList.add("level-1");
+        if (data.daily_completion > 25) cell.classList.add("level-2");
+        if (data.daily_completion > 50) cell.classList.add("level-3");
+        if (data.daily_completion > 75) cell.classList.add("level-4");
+
+        heatmap.appendChild(cell);
+    }
+}
+
+/* INIT */
+loadTasks();
+updateDailyStats();
+updateHeatmap();
+
+</script>
+
+</body>
+</html>
